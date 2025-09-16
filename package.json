@@ -1,0 +1,26 @@
+{
+    "name": "pdf-reportify",
+    "version": "0.0.1",
+    "description": "A Node.js CLI tool to generate PDF reports from test screenshots.",
+    "main": "index.js",
+    "bin": {
+        "generate-test-reports": "./cli.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "cli",
+        "pdf",
+        "report",
+        "screenshots",
+        "automation"
+    ],
+    "author": "Fernando Papito",
+    "license": "MIT",
+    "dependencies": {
+        "glob": "^10.4.1",
+        "pdf-lib": "^1.17.1",
+        "yargs": "^18.0.0"
+    }
+}
