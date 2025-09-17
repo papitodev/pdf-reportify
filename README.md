@@ -3,7 +3,7 @@
 Generate consolidated PDF reports from test run screenshots.
 
 ### Features
-- **CLI command**: `generate-test-reports`
+- **CLI command**: `pdf-reportify`
 - **Input**: Folders containing `step*.png` images per test case
 - **Output**: One PDF per test case saved under `reports/`
 
@@ -19,7 +19,7 @@ npm install
 ### Usage
 - With the provided CLI command (after install):
 ```bash
-npx generate-test-reports --path ./path/to/screenshots
+npx pdf-reportify --path ./path/to/screenshots
 ```
 
 - Or directly via Node:
@@ -43,7 +43,7 @@ screenshots/
 
 Running the command:
 ```bash
-npx generate-test-reports --path ./screenshots
+npx pdf-reportify --path ./screenshots
 ```
 
 Images are ordered by file creation time (oldest first). Produces PDFs under:

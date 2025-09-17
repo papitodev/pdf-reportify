@@ -42,19 +42,33 @@ async function createPdfFromImages(imagePaths) {
 /**
  * Generates PDF files for each test case in a screenshots directory.
  * @param {string} screenshotsDir - The path to the root screenshots directory.
+ * @param {{ verbose?: boolean }} options - Optional settings.
  */
-async function generateTestReports(screenshotsDir) {
+async function generateTestReports(screenshotsDir, options = {}) {
+  const verbose = Boolean(options.verbose);
+  const vLog = (...args) => { if (verbose) console.log(...args); };
   try {
     const outputDir = path.join(screenshotsDir, 'reports');
     await fs.mkdir(outputDir, { recursive: true });
 
-    const testCaseDirs = await glob(`${screenshotsDir}/*/`);
+    // List test case directories using fs to be robust across environments
+    const dirEntries = await fs.readdir(screenshotsDir, { withFileTypes: true });
+    const testCaseDirs = dirEntries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => path.join(screenshotsDir, entry.name));
+
+    vLog(`Found ${testCaseDirs.length} test case folders in: ${screenshotsDir}`);
 
     for (const testCaseDir of testCaseDirs) {
       const testCaseName = path.basename(path.resolve(testCaseDir));
-      const imagePattern = path.join(testCaseDir, '*.{png,jpg,jpeg}');
+      // Normalize to POSIX path for glob on Windows
+      const posixDir = testCaseDir.replace(/\\/g, '/');
+      const imagePattern = `${posixDir}/*.{png,jpg,jpeg,PNG,JPG,JPEG}`;
 
-      const imagePaths = await glob(imagePattern, { nocase: true });
+      const imagePaths = await glob(imagePattern, { nocase: true, windowsPathsNoEscape: true });
+
+      vLog(`Folder '${testCaseName}' pattern: ${imagePattern}`);
+      vLog(`Found ${imagePaths.length} images in '${testCaseName}'`);
 
       if (imagePaths.length === 0) {
         console.warn(`No screenshots found for test case: ${testCaseName}`);
@@ -71,6 +85,7 @@ async function generateTestReports(screenshotsDir) {
 
       filesWithStats.sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs);
       const orderedImagePaths = filesWithStats.map((f) => f.imagePath);
+      vLog(`Ordering by creation time (oldest first):`, orderedImagePaths.map(p => path.basename(p)).join(', '));
 
       console.log(`Generating report for test case: ${testCaseName}`);
       const pdfBytes = await createPdfFromImages(orderedImagePaths);

@@ -12,17 +12,24 @@ const argv = yargs(process.argv.slice(2))
     type: 'string',
     demandOption: true,
   })
+  .option('verbose', {
+    alias: 'v',
+    description: 'Enable verbose logging for debugging.',
+    type: 'boolean',
+    default: false,
+  })
   .help()
   .alias('help', 'h')
   .argv;
 
 const screenshotsPath = argv.path;
+const verbose = argv.verbose;
 
 const absolutePath = path.resolve(screenshotsPath);
 
 console.log(`\nStarting report generation from: ${absolutePath}\n`);
 
-generateTestReports(absolutePath)
+generateTestReports(absolutePath, { verbose })
   .then(() => {
     console.log('\nReport generation completed successfully!');
   })
