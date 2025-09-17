@@ -52,23 +52,28 @@ async function generateTestReports(screenshotsDir) {
 
     for (const testCaseDir of testCaseDirs) {
       const testCaseName = path.basename(path.resolve(testCaseDir));
-      const imagePattern = path.join(testCaseDir, 'step*.png');
+      const imagePattern = path.join(testCaseDir, '*.{png,jpg,jpeg}');
 
-      const imagePaths = await glob(imagePattern);
+      const imagePaths = await glob(imagePattern, { nocase: true });
 
       if (imagePaths.length === 0) {
         console.warn(`No screenshots found for test case: ${testCaseName}`);
         continue;
       }
 
-      imagePaths.sort((a, b) => {
-        const numA = parseInt(path.basename(a).match(/\d+/)[0], 10);
-        const numB = parseInt(path.basename(b).match(/\d+/)[0], 10);
-        return numA - numB;
-      });
+      // Order images by file creation time (birthtime)
+      const filesWithStats = await Promise.all(
+        imagePaths.map(async (imagePath) => ({
+          imagePath,
+          stat: await fs.stat(imagePath),
+        }))
+      );
+
+      filesWithStats.sort((a, b) => a.stat.birthtimeMs - b.stat.birthtimeMs);
+      const orderedImagePaths = filesWithStats.map((f) => f.imagePath);
 
       console.log(`Generating report for test case: ${testCaseName}`);
-      const pdfBytes = await createPdfFromImages(imagePaths);
+      const pdfBytes = await createPdfFromImages(orderedImagePaths);
       const outputFilePath = path.join(outputDir, `${testCaseName}_report.pdf`);
       await fs.writeFile(outputFilePath, pdfBytes);
       console.log(`Report saved to: ${outputFilePath}`);

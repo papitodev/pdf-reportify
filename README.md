@@ -28,17 +28,17 @@ node cli.js --path ./path/to/screenshots
 ```
 
 ### Screenshots directory structure
-Place screenshots under a parent folder where each test case has its own subfolder. Within each test folder, name steps as `step<number>.png`.
+Place screenshots under a parent folder where each test case has its own subfolder. Image files can have any name; supported extensions are `.png`, `.jpg`, `.jpeg`.
 
 Example:
 ```
 screenshots/
   Login test/
-    step1.png
-    step2.png
+    001.png
+    something.png
   Checkout flow/
-    step1.png
-    step2.png
+    screenshot-a.jpg
+    screenshot-b.jpeg
 ```
 
 Running the command:
@@ -46,7 +46,7 @@ Running the command:
 npx generate-test-reports --path ./screenshots
 ```
 
-Produces PDFs under:
+Images are ordered by file creation time (oldest first). Produces PDFs under:
 ```
 screenshots/
   reports/
