@@ -29,6 +29,7 @@ describe('generateTestReports', () => {
   const readFileSpy = jest.spyOn(fs, 'readFile');
   const writeFileSpy = jest.spyOn(fs, 'writeFile');
   const mkdirSpy = jest.spyOn(fs, 'mkdir');
+  const readdirSpy = jest.spyOn(fs, 'readdir');
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -37,13 +38,13 @@ describe('generateTestReports', () => {
   test('orders images by creation time and generates PDFs per test case', async () => {
     const screenshotsDir = '/root/screenshots';
 
+    readdirSpy.mockResolvedValue([
+      { name: 'CaseA', isDirectory: () => true },
+      { name: 'CaseB', isDirectory: () => true },
+      { name: 'notes.txt', isDirectory: () => false },
+    ]);
+
     glob.mockImplementation(async (pattern) => {
-      if (pattern === `${screenshotsDir}/*/`) {
-        return [
-          path.join(screenshotsDir, 'CaseA/') ,
-          path.join(screenshotsDir, 'CaseB/') ,
-        ];
-      }
       if (pattern.includes('CaseA')) {
         return [
           path.join(screenshotsDir, 'CaseA', 'img2.png'),
